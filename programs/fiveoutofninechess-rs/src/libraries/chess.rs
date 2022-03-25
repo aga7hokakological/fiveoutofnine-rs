@@ -187,6 +187,66 @@ pub fn is_legal_move(_board: u64, _move: u64) -> bool {
         }
         if (!ray_found) return false;
     }
-    if ()
+
+    if (Engine.nega_max(_board.apply_move(_move), 1) < -1_260) return false;
+
+    return true;
 }
+
+
+pub fn search_ray(
+    _board, 
+    from_index, 
+    to_index, 
+    direction_vector
+) -> bool {
+    let index_change;
+    let ray_start;
+    let ray_end;
+
+    if (from_index < to_index) {
+        index_change = to_index - from_index;
+        ray_start = from_index + direction_vector;
+        ray_end = to_index;
+    } else {
+        index_change = from_index - to_index;
+        ray_start = to_index;
+        ray_end = from_index - direction_vector;
+    }
+
+    if (index_change % direction_vector != 0) return false;
+
+    for (
+        ray_start = ray_start;
+        ray_start < ray_end;
+        ray_start += direction_vector
+    ) {
+        if (!is_valid(_board, ray_start)) return false;
+        if (is_capture(_board, _board >> (ray_start << 2))) return false;
+    }
+
+    if (!is_valid(_board, ray_start)) return false;
+
+    return ray_start == ray_end;
 }
+
+pub fn is_capture(_board: u64, _index_adjusted_board: u64) -> bool {
+    return (_index_adjusted_board & 0xF) != 0
+            && (_index_adjusted_board & 0xF) >> 3 != _board & 1;
+}
+
+pub fn is_valid(_board: u64, to_index: u64) -> bool {
+    return (0x7E7E7E7E7E7E00 >> to_index) & 1 == 1
+            && ((_board >> (to_index << 2)) & 0xF == 0
+                    || (((_board >> (to_index << 2)) & 0xF) >> 3) != _board & 1); 
+}
+
+pub fn get_adjusted_index(_index: u64) -> u64 {
+    return (
+        (0xDB5D33CB1BADB2BAA99A59238A179D71B69959551349138D30B289 >> (_index * 6)) & 0x3F
+    );
+}
+
+// pub fn append(MoveArray: u64, from_move_index, to_move_index) {
+//     let current_index = 
+// }
